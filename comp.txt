@@ -46,7 +46,7 @@
      shell: "diff <( stat -c '%a %U %G %C' {{run1 }}/{{item}} ) <( stat -c '%a %U %G %C' {{run2 }}/{{item}} )"
      args:
        executable: /bin/bash
-     failed_when: "diff1.rc > 1"
+     failed_when: "diff2.rc > 1"
      loop: "{{ files1 }}"
      register: diff2
 
