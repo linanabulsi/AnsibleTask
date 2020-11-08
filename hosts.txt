@@ -1,0 +1,8 @@
+[undercloud]
+localhost
+
+[hypervisor]
+192.168.205.75
+
+[overcloud]
+172.20.30.35

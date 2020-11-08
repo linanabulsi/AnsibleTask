@@ -1,0 +1,41 @@
+---
+ - hosts: all
+   tasks:
+   - debug:
+       msg: "Hello"
+     become: yes
+
+
+   - name: Include vars
+     include_vars:
+       file: in.yml
+       name: available_paths
+     become: yes
+
+
+   - set_fact:
+       available_paths: |
+         {%- set results = [] -%}
+         {%- for key in available_paths.keys() -%}
+          {%- for value in available_paths[key] -%}
+           {%-   set ignored = results.extend([{'type': key, 'file': value}]) -%}
+          {%- endfor -%}
+         {%- endfor -%}
+         {{ results }}
+     become: yes
+
+
+   - debug:
+      msg: "{{ item.file.path + item.file.file_name }}"
+     loop: "{{ available_paths }}"
+     become: yes
+
+
+
+   - fetch:
+       src: "{{ item.file.path + '/' + item.file.folder + '/' + item.file.file_name }}"
+       dest: "/home/admin1/anstask/run1/{{ item.type }}/"
+       flat: yes
+     when: "{{ item.file.when }}"
+     loop: "{{ available_paths }}"
+#     become: yes

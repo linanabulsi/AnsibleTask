@@ -1,0 +1,65 @@
+---
+ - hosts: localhost
+   become: yes
+   vars:
+     run1: /home/admin1/anstask/run1
+     run2: /home/admin1/anstask/run2
+     diff_cont: []
+     diff_attr: []
+
+   tasks:
+   - debug:
+       msg: "Hello"
+
+   - find:
+       path: "{{run1}}"
+       patterns: "*.txt"
+       recurse: yes
+     register: files1
+
+   - name: Extract files names
+     set_fact:
+       files1: |
+         {% set res = [] -%}
+         {% for file in files1.files -%}
+          {% set ignored = res.extend([ file.path[run1|length+1:] ]) -%}
+         {%- endfor %}
+         {{ res }}
+
+
+   - name: Diff files contents
+     shell: "diff {{run1}}/{{item}} {{run2}}/{{item}}; true"
+     loop: "{{ files1 }}"
+     register: diff1
+
+#   - debug:
+#       msg: "{{  item.stdout }}"
+#     loop: "{{ diff1.results }}"
+
+
+   - name: store results
+     set_fact:
+       diff_cont: "{{ diff_cont + [item.item, item.stdout_lines] }}"
+     loop: "{{ diff1.results }}"
+
+   - debug:
+       var: diff_cont
+
+   - name: Diff files attributes
+     shell: "diff <( stat -c '%a %U %G %C' {{run1 }}/{{item}} ) <( stat -c '%a %U %G %C' {{run2 }}/{{item}} ); true"
+     args:
+       executable: /bin/bash
+     loop: "{{ files1 }}"
+     register: diff2
+
+#   - debug:
+#       var: diff2
+
+
+   - name: store result
+     set_fact:
+       diff_attr: "{{ diff_attr + [item.item, item.stdout_lines] }}"
+     loop: "{{ diff2.results }}"
+
+   - debug:
+       var: diff_attr
