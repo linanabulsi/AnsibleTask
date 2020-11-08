@@ -28,7 +28,8 @@
 
 
    - name: Diff files contents
-     shell: "diff {{run1}}/{{item}} {{run2}}/{{item}}; true"
+     shell: "diff {{run1}}/{{item}} {{run2}}/{{item}}"
+     failed_when: "diff1.rc > 1"
      loop: "{{ files1 }}"
      register: diff1
 
@@ -42,9 +43,10 @@
        var: diff_cont
 
    - name: Diff files attributes
-     shell: "diff <( stat -c '%a %U %G %C' {{run1 }}/{{item}} ) <( stat -c '%a %U %G %C' {{run2 }}/{{item}} ); true"
+     shell: "diff <( stat -c '%a %U %G %C' {{run1 }}/{{item}} ) <( stat -c '%a %U %G %C' {{run2 }}/{{item}} )"
      args:
        executable: /bin/bash
+     failed_when: "diff1.rc > 1"
      loop: "{{ files1 }}"
      register: diff2
 
