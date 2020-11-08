@@ -32,10 +32,6 @@
      loop: "{{ files1 }}"
      register: diff1
 
-#   - debug:
-#       msg: "{{  item.stdout }}"
-#     loop: "{{ diff1.results }}"
-
 
    - name: store results
      set_fact:
@@ -51,9 +47,6 @@
        executable: /bin/bash
      loop: "{{ files1 }}"
      register: diff2
-
-#   - debug:
-#       var: diff2
 
 
    - name: store result
